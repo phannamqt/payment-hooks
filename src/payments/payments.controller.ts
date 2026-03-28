@@ -18,7 +18,7 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('hooks/sepay-payment')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   async receiveHook(@Body() body: any) {
     this.logger.log(`Received webhook: ${JSON.stringify(body)}`);
     const payment = await this.paymentsService.savePayment(body);
