@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    header .badge {
+      background: #10b981;
+      color: #fff;
+      border-radius: 9999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    header .badge.error { background: #ef4444; }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+    }
+
+    .controls span { font-size: 14px; color: #94a3b8; }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-danger  { background: #ef4444; color: #fff; }
+    .btn-ghost   { background: #334155; color: #e2e8f0; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      padding: 20px 24px;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .stat-card .label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+    .stat-card .value { font-size: 22px; font-weight: 700; color: #f8fafc; }
+    .stat-card .value.green { color: #10b981; }
+
+    .table-wrap {
+      padding: 0 24px 24px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      background: #1e293b;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      color: #64748b;
+      font-weight: 600;
+      border-bottom: 1px solid #334155;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #1e293b;
+      transition: background 0.1s;
+    }
+
+    tbody tr:hover { background: #1e293b; }
+
+    td {
+      padding: 10px 14px;
+      vertical-align: top;
+      max-width: 260px;
+    }
+
+    .amount {
+      font-weight: 700;
+      color: #10b981;
+      white-space: nowrap;
+    }
+
+    .amount.out { color: #f87171; }
+
+    .badge-bank {
+      display: inline-block;
+      background: #1d4ed8;
+      color: #bfdbfe;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .content-cell {
+      color: #94a3b8;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .date-cell { color: #94a3b8; white-space: nowrap; }
+
+    .empty {
+      text-align: center;
+      padding: 60px;
+      color: #475569;
+    }
+
+    .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+    .new-row {
+      animation: highlight 2s ease-out;
+    }
+
+    @keyframes highlight {
+      0%   { background: #1d4ed833; }
+      100% { background: transparent; }
+    }
+
+    .auto-badge {
+      font-size: 12px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Payment Dashboard</h1>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="status-badge" class="badge">Connected</span>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="auto-badge">
+    <span class="dot"></span>
+    Auto-refresh mỗi 5 giây
+  </div>
+  <span style="flex:1"></span>
+  <button class="btn btn-ghost" onclick="loadPayments()">Refresh ngay</button>
+  <button class="btn btn-danger" onclick="clearPayments()">Xóa tất cả</button>
+</div>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="label">Tổng giao dịch</div>
+    <div class="value" id="stat-total">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Tổng tiền vào</div>
+    <div class="value green" id="stat-amount">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Giao dịch gần nhất</div>
+    <div class="value" id="stat-latest" style="font-size:14px;">—</div>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table id="payment-table">
+    <thead>
+      <tr>
+        <th>#ID</th>
+        <th>Thời gian</th>
+        <th>Ngân hàng</th>
+        <th>Số tài khoản</th>
+        <th>Số tiền</th>
+        <th>Loại</th>
+        <th>Nội dung chuyển tiền</th>
+        <th>Mã tham chiếu</th>
+      </tr>
+    </thead>
+    <tbody id="payment-body">
+      <tr>
+        <td colspan="8" class="empty">
+          <div class="icon">💳</div>
+          <div>Chưa có giao dịch nào</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  let lastTotal = 0;
+
+  function fmt(n) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+  }
+
+  function fmtDate(s) {
+    if (!s) return '—';
+    try {
+      return new Date(s).toLocaleString('vi-VN');
+    } catch { return s; }
+  }
+
+  async function loadPayments() {
+    try {
+      const res = await fetch('/api/payments?limit=100');
+      if (!res.ok) throw new Error(res.statusText);
+      const { payments, total } = await res.json();
+
+      document.getElementById('status-badge').textContent = 'Connected';
+      document.getElementById('status-badge').className = 'badge';
+
+      document.getElementById('stat-total').textContent = total;
+
+      const incoming = payments.filter(p => p.transferType === 'in');
+      const totalAmount = incoming.reduce((s, p) => s + p.transferAmount, 0);
+      document.getElementById('stat-amount').textContent = fmt(totalAmount);
+
+      if (payments.length > 0) {
+        const p = payments[0];
+        document.getElementById('stat-latest').textContent =
+          fmt(p.transferAmount) + ' — ' + (p.transactionDate || fmtDate(p.receivedAt));
+      }
+
+      renderTable(payments, total > lastTotal);
+      lastTotal = total;
+
+    } catch (e) {
+      document.getElementById('status-badge').textContent = 'Error';
+      document.getElementById('status-badge').className = 'badge error';
+      console.error(e);
+    }
+  }
+
+  function renderTable(payments, hasNew) {
+    const tbody = document.getElementById('payment-body');
+
+    if (payments.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">💳</div><div>Chưa có giao dịch nào</div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = payments.map((p, i) => `
+      <tr class="${hasNew && i === 0 ? 'new-row' : ''}">
+        <td style="color:#64748b;">${p.id || '—'}</td>
+        <td class="date-cell">${p.transactionDate || fmtDate(p.receivedAt)}</td>
+        <td><span class="badge-bank">${p.gateway || '—'}</span></td>
+        <td style="font-family:monospace;">${p.accountNumber || '—'}<br/><span style="color:#64748b;font-size:11px;">${p.subAccount || ''}</span></td>
+        <td class="amount ${p.transferType === 'out' ? 'out' : ''}">${fmt(p.transferAmount)}</td>
+        <td>${p.transferType === 'in'
+          ? '<span style="color:#10b981;font-weight:700;">↓ Vào</span>'
+          : '<span style="color:#f87171;font-weight:700;">↑ Ra</span>'
+        }</td>
+        <td class="content-cell" title="${escHtml(p.content || '')}">${escHtml(truncate(p.content || '—', 80))}</td>
+        <td style="color:#64748b;font-size:11px;font-family:monospace;">${truncate(p.referenceCode || '—', 20)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function truncate(s, n) {
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function clearPayments() {
+    if (!confirm('Xóa tất cả giao dịch khỏi Redis?')) return;
+    await fetch('/api/payments', { method: 'DELETE' });
+    lastTotal = 0;
+    await loadPayments();
+  }
+
+  loadPayments();
+  setInterval(loadPayments, 5000);
+</script>
+</body>
+</html>
