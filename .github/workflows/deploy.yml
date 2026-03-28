@@ -69,7 +69,7 @@ jobs:
             # --- 1. Tao file .env neu chua co ---
             if [ ! -f .env ]; then
               echo "PORT=3000" > .env
-              echo "REDIS_HOST=redis" >> .env
+              echo "REDIS_HOST=redis.phannam.com" >> .env
               echo "REDIS_PORT=6379" >> .env
             fi
 
