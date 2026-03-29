@@ -347,6 +347,7 @@
   async function clearPayments() {
     const password = prompt('Nhập mật khẩu để xóa toàn bộ dữ liệu:');
     if (password === null) return; // bấm Cancel
+    if (!password.trim()) { alert('Vui lòng nhập mật khẩu'); return; }
 
     const res = await fetch('/api/payments', {
       method: 'DELETE',
