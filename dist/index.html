@@ -259,6 +259,7 @@
   </table>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
   let lastTotal = 0;
 
@@ -347,8 +348,25 @@
     await loadPayments();
   }
 
+  // ── Socket.IO realtime ──────────────────────────────────────
+  const socket = io();
+
+  socket.on('connect', () => {
+    document.getElementById('status-badge').textContent = 'Connected';
+    document.getElementById('status-badge').className = 'badge';
+  });
+
+  socket.on('disconnect', () => {
+    document.getElementById('status-badge').textContent = 'Disconnected';
+    document.getElementById('status-badge').className = 'badge error';
+  });
+
+  socket.on('new_payment', () => {
+    loadPayments();
+  });
+
+  // Load lần đầu khi mở trang
   loadPayments();
-  setInterval(loadPayments, 5000);
 </script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Logger,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { ApiKeyGuard } from './api-key.guard';
@@ -42,7 +43,11 @@ export class PaymentsController {
 
   @Delete('api/payments')
   @HttpCode(HttpStatus.OK)
-  async clearPayments() {
+  async clearPayments(@Body('password') password: string) {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminPassword && password !== adminPassword) {
+      throw new UnauthorizedException('Sai mật khẩu');
+    }
     await this.paymentsService.clearPayments();
     return { success: true, message: 'All payments cleared' };
   }

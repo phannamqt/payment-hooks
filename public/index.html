@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Dashboard</title>
+  <title>NAM Pay — Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -200,7 +200,10 @@
 <body>
 
 <header>
-  <h1>Payment Hook</h1>
+  <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+    <img src="/logo.png" alt="NAM Pay" style="height:40px;border-radius:6px;" />
+    <h1>NAM Pay</h1>
+  </a>
   <nav style="display:flex;align-items:center;gap:6px;margin-left:24px;flex:1;">
     <a href="/" class="nav-link active">Dashboard</a>
     <a href="/qr.html" class="nav-link">Tạo QR</a>
@@ -342,8 +345,21 @@
   }
 
   async function clearPayments() {
-    if (!confirm('Xóa tất cả giao dịch khỏi Redis?')) return;
-    await fetch('/api/payments', { method: 'DELETE' });
+    const password = prompt('Nhập mật khẩu để xóa toàn bộ dữ liệu:');
+    if (password === null) return; // bấm Cancel
+
+    const res = await fetch('/api/payments', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.message || 'Sai mật khẩu');
+      return;
+    }
+
     lastTotal = 0;
     await loadPayments();
   }

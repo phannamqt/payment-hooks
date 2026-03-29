@@ -72,6 +72,7 @@ jobs:
               echo "REDIS_HOST=redis.phannam.com" >> .env
               echo "REDIS_PORT=6379" >> .env
               echo "WEBHOOK_API_KEY=${{ secrets.WEBHOOK_API_KEY }}" >> .env
+              echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
             fi
 
             # --- 2. Pull image moi nhat ---

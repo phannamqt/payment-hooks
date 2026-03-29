@@ -13,13 +13,14 @@ const payments_service_1 = require("./payments.service");
 const redis_service_1 = require("./redis.service");
 const qr_controller_1 = require("./qr.controller");
 const qr_image_service_1 = require("./qr-image.service");
+const payments_gateway_1 = require("./payments.gateway");
 let PaymentsModule = class PaymentsModule {
 };
 exports.PaymentsModule = PaymentsModule;
 exports.PaymentsModule = PaymentsModule = __decorate([
     (0, common_1.Module)({
         controllers: [payments_controller_1.PaymentsController, qr_controller_1.QrController],
-        providers: [payments_service_1.PaymentsService, redis_service_1.RedisService, qr_image_service_1.QrImageService],
+        providers: [payments_service_1.PaymentsService, redis_service_1.RedisService, qr_image_service_1.QrImageService, payments_gateway_1.PaymentsGateway],
     })
 ], PaymentsModule);
 //# sourceMappingURL=payments.module.js.map
