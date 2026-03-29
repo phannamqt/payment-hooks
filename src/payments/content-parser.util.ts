@@ -151,18 +151,35 @@ export function parseTransferContent(content: string): ParsedContent | null {
     };
   }
 
-  // ── Format 2: MoMo / ví điện tử ─────────────────────────────
-  // {txId} {phone|account} {description...}
+  // ── Format 2: ZaloPay ────────────────────────────────────────
+  // ZP{txId}, {description}
+  // VD: "ZP7COI8QELCJ, UNG HO NGUOI NGHEO"
+  if (/^ZP[A-Z0-9]+/i.test(content)) {
+    const commaIdx = content.indexOf(',');
+    const txId        = commaIdx > -1 ? content.slice(0, commaIdx).trim() : content.trim();
+    const description = commaIdx > -1 ? content.slice(commaIdx + 1).trim() : '';
+    return {
+      bankPrefix:  'ZALOPAY',
+      bankName:    'ZaloPay',
+      description,
+      fromAccount: txId,
+      fromName:    '',
+      toAccount:   '',
+      toName:      '',
+    };
+  }
+
+  // ── Format 3: MoMo / ví điện tử số ──────────────────────────
+  // {txId_số} {phone|account} {description...}
   // VD: "122998552821 0977496798 TESTCHUYENTIEN"
   const spaceParts = content.trim().split(/\s+/);
   if (spaceParts.length >= 2 && /^\d{6,}$/.test(spaceParts[0])) {
     const maybePhone = spaceParts[1];
-    const isPhone = VN_PHONE_RE.test(maybePhone);
+    const isPhone    = VN_PHONE_RE.test(maybePhone);
     const description = spaceParts.slice(2).join(' ');
-
     return {
       bankPrefix:  'MOMO',
-      bankName:    isPhone ? 'MoMo' : 'Ví điện tử',
+      bankName:    isPhone ? 'MoMo' : 'Vi dien tu',
       description,
       fromAccount: isPhone ? maybePhone : spaceParts[0],
       fromName:    '',
