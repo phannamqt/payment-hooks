@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from './redis.service';
 import { parseTransferContent, ParsedContent } from './content-parser.util';
+import { PaymentsGateway } from './payments.gateway';
 
 const REDIS_KEY = 'payments';
 const MAX_PAYMENTS = 500;
@@ -26,7 +27,10 @@ export interface Payment {
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
 
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly gateway: PaymentsGateway,
+  ) {}
 
   async savePayment(data: any): Promise<Payment> {
     const content = data.content || '';
@@ -56,6 +60,8 @@ export class PaymentsService {
       `from ${payment.parsed?.bankName || payment.gateway} ` +
       `acc=${payment.parsed?.fromAccount || '?'}`,
     );
+
+    this.gateway.emitNewPayment(payment);
     return payment;
   }
 
