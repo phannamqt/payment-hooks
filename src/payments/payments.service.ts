@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from './redis.service';
+import { parseTransferContent, ParsedContent } from './content-parser.util';
 
 const REDIS_KEY = 'payments';
 const MAX_PAYMENTS = 500;
@@ -18,6 +19,7 @@ export interface Payment {
   accumulated: number;
   id: number;
   receivedAt: string;
+  parsed: ParsedContent | null;
 }
 
 @Injectable()
@@ -27,13 +29,14 @@ export class PaymentsService {
   constructor(private readonly redisService: RedisService) {}
 
   async savePayment(data: any): Promise<Payment> {
+    const content = data.content || '';
     const payment: Payment = {
       gateway: data.gateway || '',
       transactionDate: data.transactionDate || '',
       accountNumber: data.accountNumber || '',
       subAccount: data.subAccount || '',
       code: data.code || null,
-      content: data.content || '',
+      content,
       transferType: data.transferType || '',
       description: data.description || '',
       transferAmount: Number(data.transferAmount) || 0,
@@ -41,6 +44,7 @@ export class PaymentsService {
       accumulated: Number(data.accumulated) || 0,
       id: Number(data.id) || 0,
       receivedAt: new Date().toISOString(),
+      parsed: parseTransferContent(content),
     };
 
     const redis = this.redisService.getClient();
@@ -48,7 +52,9 @@ export class PaymentsService {
     await redis.ltrim(REDIS_KEY, 0, MAX_PAYMENTS - 1);
 
     this.logger.log(
-      `Saved payment id=${payment.id} amount=${payment.transferAmount} from ${payment.gateway}`,
+      `Saved payment id=${payment.id} amount=${payment.transferAmount} ` +
+      `from ${payment.parsed?.bankName || payment.gateway} ` +
+      `acc=${payment.parsed?.fromAccount || '?'}`,
     );
     return payment;
   }

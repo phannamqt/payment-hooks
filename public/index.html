@@ -224,12 +224,13 @@
       <tr>
         <th>#ID</th>
         <th>Thời gian</th>
-        <th>Ngân hàng</th>
-        <th>Số tài khoản</th>
+        <th>NH nhận</th>
+        <th>NH chuyển</th>
+        <th>TK chuyển</th>
+        <th>Tên người chuyển</th>
         <th>Số tiền</th>
         <th>Loại</th>
-        <th>Nội dung chuyển tiền</th>
-        <th>Mã tham chiếu</th>
+        <th>Nội dung</th>
       </tr>
     </thead>
     <tbody id="payment-body">
@@ -296,21 +297,24 @@
       return;
     }
 
-    tbody.innerHTML = payments.map((p, i) => `
+    tbody.innerHTML = payments.map((p, i) => {
+      const parsed = p.parsed || {};
+      return `
       <tr class="${hasNew && i === 0 ? 'new-row' : ''}">
         <td style="color:#64748b;">${p.id || '—'}</td>
         <td class="date-cell">${p.transactionDate || fmtDate(p.receivedAt)}</td>
         <td><span class="badge-bank">${p.gateway || '—'}</span></td>
-        <td style="font-family:monospace;">${p.accountNumber || '—'}<br/><span style="color:#64748b;font-size:11px;">${p.subAccount || ''}</span></td>
+        <td><span class="badge-bank" style="background:#7c3aed;">${parsed.bankName || '—'}</span></td>
+        <td style="font-family:monospace;font-size:12px;">${parsed.fromAccount || '—'}</td>
+        <td style="font-size:13px;">${escHtml(parsed.fromName || '—')}</td>
         <td class="amount ${p.transferType === 'out' ? 'out' : ''}">${fmt(p.transferAmount)}</td>
         <td>${p.transferType === 'in'
           ? '<span style="color:#10b981;font-weight:700;">↓ Vào</span>'
           : '<span style="color:#f87171;font-weight:700;">↑ Ra</span>'
         }</td>
-        <td class="content-cell" title="${escHtml(p.content || '')}">${escHtml(truncate(p.content || '—', 80))}</td>
-        <td style="color:#64748b;font-size:11px;font-family:monospace;">${truncate(p.referenceCode || '—', 20)}</td>
+        <td class="content-cell" title="${escHtml(p.content || '')}">${escHtml(parsed.description || truncate(p.content || '—', 60))}</td>
       </tr>
-    `).join('');
+    `}).join('');
   }
 
   function truncate(s, n) {
