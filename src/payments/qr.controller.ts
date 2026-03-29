@@ -1,19 +1,20 @@
 import { Controller, Get, Query, Res, BadRequestException } from '@nestjs/common';
 import { Response } from 'express';
-import * as QRCode from 'qrcode';
 import { generateVietQR, vietQRImageUrl, BANK_BIN } from './vietqr.util';
+import { QrImageService } from './qr-image.service';
 
 @Controller('api/qr')
 export class QrController {
 
+  constructor(private readonly qrImageService: QrImageService) {}
+
   /** GET /api/qr/banks — danh sách ngân hàng hỗ trợ */
   @Get('banks')
   getBanks() {
-    const banks = Object.entries(BANK_BIN).map(([code, bin]) => ({ code, bin }));
-    return banks;
+    return Object.entries(BANK_BIN).map(([code, bin]) => ({ code, bin }));
   }
 
-  /** GET /api/qr/generate — trả JSON: qrString + imageUrl CDN + dataUrl base64 */
+  /** GET /api/qr/generate — trả JSON: qrString + imageUrl CDN */
   @Get('generate')
   async generate(
     @Query('bankBin')       bankBin: string,
@@ -21,6 +22,7 @@ export class QrController {
     @Query('accountName')   accountName: string,
     @Query('amount')        amount?: string,
     @Query('description')   description?: string,
+    @Query('template')      template?: string,
   ) {
     this.validateRequired({ bankBin, accountNumber, accountName });
 
@@ -32,22 +34,26 @@ export class QrController {
       description: description ?? '',
     };
 
-    const qrString  = generateVietQR(opts);
-    const imageUrl  = vietQRImageUrl(opts);
-    const dataUrl   = await QRCode.toDataURL(qrString, { width: 300, margin: 2 });
+    const validTemplates = ['compact', 'compact2', 'qr_only', 'print'];
+    const tpl = validTemplates.includes(template) ? template as any : 'compact2';
 
-    return { qrString, imageUrl, dataUrl };
+    const qrString = generateVietQR(opts);
+    const imageUrl = vietQRImageUrl(opts, tpl);
+
+    return { qrString, imageUrl };
   }
 
-  /** GET /api/qr/image — trả ảnh PNG trực tiếp */
+  /**
+   * GET /api/qr/image — tạo QR local có logo VietQR ở giữa
+   */
   @Get('image')
   async image(
+    @Res() res: Response,
     @Query('bankBin')       bankBin: string,
     @Query('accountNumber') accountNumber: string,
     @Query('accountName')   accountName: string,
     @Query('amount')        amount?: string,
     @Query('description')   description?: string,
-    @Res() res?: Response,
   ) {
     this.validateRequired({ bankBin, accountNumber, accountName });
 
@@ -59,7 +65,8 @@ export class QrController {
       description: description ?? '',
     });
 
-    const buffer = await QRCode.toBuffer(qrString, { width: 300, margin: 2 });
+    const buffer = await this.qrImageService.generateWithLogo(qrString);
+
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', 'no-store');
     res.send(buffer);
