@@ -14,55 +14,88 @@
       min-height: 100vh;
     }
 
+    /* ── Header ── */
     header {
       background: #1e293b;
       border-bottom: 1px solid #334155;
-      padding: 14px 24px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    header h1 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #f8fafc;
-      white-space: nowrap;
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      flex-shrink: 0;
     }
+
+    .header-logo img { height: 34px; border-radius: 6px; }
+    .header-logo h1  { font-size: 16px; font-weight: 700; color: #f8fafc; }
+
+    nav { display: flex; align-items: center; gap: 4px; flex: 1; }
 
     .nav-link {
       color: #94a3b8;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      padding: 6px 14px;
+      padding: 5px 10px;
       border-radius: 6px;
-      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
     }
-
-    .nav-link:hover { background: #334155; color: #f8fafc; }
+    .nav-link:hover  { background: #334155; color: #f8fafc; }
     .nav-link.active { background: #3b82f6; color: #fff; font-weight: 600; }
 
-    header .badge {
+    .badge {
       background: #10b981;
       color: #fff;
       border-radius: 9999px;
-      padding: 3px 10px;
-      font-size: 12px;
+      padding: 3px 8px;
+      font-size: 11px;
       font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
+    .badge.error { background: #ef4444; }
 
-    header .badge.error { background: #ef4444; }
-
+    /* ── Controls ── */
     .controls {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px 24px;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
       background: #1e293b;
       border-bottom: 1px solid #334155;
     }
 
-    .controls span { font-size: 14px; color: #94a3b8; }
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.5s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; } 50% { opacity:0.3; }
+    }
+
+    .controls-actions { display: flex; gap: 8px; margin-left: auto; }
 
     .btn {
       padding: 7px 14px;
@@ -72,73 +105,60 @@
       font-size: 13px;
       font-weight: 600;
       transition: opacity 0.15s;
+      white-space: nowrap;
     }
-    .btn:hover { opacity: 0.85; }
-    .btn-primary { background: #3b82f6; color: #fff; }
-    .btn-danger  { background: #ef4444; color: #fff; }
+    .btn:hover   { opacity: 0.85; }
     .btn-ghost   { background: #334155; color: #e2e8f0; }
+    .btn-danger  { background: #ef4444; color: #fff; }
 
+    /* ── Stats ── */
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      padding: 20px 24px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 16px;
+    }
+
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stat-card:last-child { grid-column: 1 / -1; }
     }
 
     .stat-card {
       background: #1e293b;
       border: 1px solid #334155;
       border-radius: 10px;
-      padding: 16px;
+      padding: 14px;
     }
-
-    .stat-card .label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
-    .stat-card .value { font-size: 22px; font-weight: 700; color: #f8fafc; }
+    .stat-card .label { font-size: 11px; color: #64748b; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-card .value { font-size: 20px; font-weight: 700; color: #f8fafc; }
     .stat-card .value.green { color: #10b981; }
 
+    @media (max-width: 480px) {
+      .stat-card .value { font-size: 16px; }
+    }
+
+    /* ── Desktop table ── */
     .table-wrap {
-      padding: 0 24px 24px;
+      padding: 0 16px 24px;
       overflow-x: auto;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    thead tr {
-      background: #1e293b;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: #1e293b; }
     th {
       text-align: left;
-      padding: 10px 14px;
+      padding: 10px 12px;
       color: #64748b;
       font-weight: 600;
       border-bottom: 1px solid #334155;
       white-space: nowrap;
     }
-
-    tbody tr {
-      border-bottom: 1px solid #1e293b;
-      transition: background 0.1s;
-    }
-
+    tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.1s; }
     tbody tr:hover { background: #1e293b; }
+    td { padding: 10px 12px; vertical-align: middle; }
 
-    td {
-      padding: 10px 14px;
-      vertical-align: top;
-      max-width: 260px;
-    }
-
-    .amount {
-      font-weight: 700;
-      color: #10b981;
-      white-space: nowrap;
-    }
-
+    .amount     { font-weight: 700; color: #10b981; white-space: nowrap; }
     .amount.out { color: #f87171; }
 
     .badge-bank {
@@ -146,84 +166,134 @@
       background: #1d4ed8;
       color: #bfdbfe;
       border-radius: 4px;
-      padding: 2px 7px;
+      padding: 2px 6px;
       font-size: 11px;
       font-weight: 700;
     }
 
-    .content-cell {
-      color: #94a3b8;
-      font-size: 12px;
-      word-break: break-all;
+    .content-cell { color: #94a3b8; font-size: 12px; }
+    .date-cell    { color: #94a3b8; white-space: nowrap; font-size: 12px; }
+
+    /* ── Mobile cards ── */
+    .card-list { display: none; padding: 0 16px 24px; }
+
+    .pay-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
     }
 
-    .date-cell { color: #94a3b8; white-space: nowrap; }
+    .pay-card.new-card { animation: highlight 2s ease-out; }
 
-    .empty {
+    .pay-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .pay-card-amount { font-size: 20px; font-weight: 700; color: #10b981; }
+    .pay-card-amount.out { color: #f87171; }
+
+    .pay-card-type {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 9999px;
+    }
+    .type-in  { background: #064e3b; color: #34d399; }
+    .type-out { background: #450a0a; color: #f87171; }
+
+    .pay-card-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pay-card-row .key {
+      color: #64748b;
+      font-size: 11px;
+      min-width: 70px;
+    }
+
+    .pay-card-row .val { color: #e2e8f0; }
+
+    .pay-card-desc {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #334155;
+      font-size: 12px;
+      color: #94a3b8;
+      word-break: break-word;
+    }
+
+    .pay-card-time {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 6px;
+    }
+
+    /* ── Empty ── */
+    .empty-state {
       text-align: center;
-      padding: 60px;
+      padding: 60px 20px;
       color: #475569;
     }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
 
-    .empty .icon { font-size: 48px; margin-bottom: 12px; }
-
-    .new-row {
-      animation: highlight 2s ease-out;
+    /* ── Highlight ── */
+    @keyframes highlight {
+      0%   { border-color: #3b82f6; box-shadow: 0 0 0 2px #3b82f633; }
+      100% { border-color: #334155; box-shadow: none; }
     }
 
-    @keyframes highlight {
-      0%   { background: #1d4ed833; }
+    .new-row { animation: highlight-row 2s ease-out; }
+    @keyframes highlight-row {
+      0%   { background: #1d4ed822; }
       100% { background: transparent; }
     }
 
-    .auto-badge {
-      font-size: 12px;
-      color: #64748b;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
+    /* ── Responsive switch ── */
+    @media (max-width: 768px) {
+      .table-wrap { display: none; }
+      .card-list  { display: block; }
+      .header-logo h1 { display: none; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-    <img src="/logo.png" alt="NAM Pay" style="height:40px;border-radius:6px;" />
+  <a href="/" class="header-logo">
+    <img src="/logo.png" alt="NAM Pay" onerror="this.style.display='none'" />
     <h1>NAM Pay</h1>
   </a>
-  <nav style="display:flex;align-items:center;gap:6px;margin-left:24px;flex:1;">
+  <nav>
     <a href="/" class="nav-link active">Dashboard</a>
     <a href="/qr.html" class="nav-link">Tạo QR</a>
   </nav>
-  <span id="status-badge" class="badge">Connected</span>
+  <span id="status-badge" class="badge">●&nbsp;Live</span>
 </header>
 
 <div class="controls">
-  <div class="auto-badge">
+  <div class="live-dot">
     <span class="dot"></span>
-    Auto-refresh mỗi 5 giây
+    <span>Realtime</span>
   </div>
-  <span style="flex:1"></span>
-  <button class="btn btn-ghost" onclick="loadPayments()">Refresh ngay</button>
-  <button class="btn btn-danger" onclick="clearPayments()">Xóa tất cả</button>
+  <div class="controls-actions">
+    <button class="btn btn-ghost" onclick="loadPayments()">Refresh</button>
+    <button class="btn btn-danger" onclick="clearPayments()">Xóa tất cả</button>
+  </div>
 </div>
 
 <div class="stats">
   <div class="stat-card">
-    <div class="label">Tổng giao dịch</div>
+    <div class="label">Tổng GD</div>
     <div class="value" id="stat-total">—</div>
   </div>
   <div class="stat-card">
@@ -231,16 +301,16 @@
     <div class="value green" id="stat-amount">—</div>
   </div>
   <div class="stat-card">
-    <div class="label">Giao dịch gần nhất</div>
-    <div class="value" id="stat-latest" style="font-size:14px;">—</div>
+    <div class="label">Gần nhất</div>
+    <div class="value" id="stat-latest" style="font-size:13px;line-height:1.4;">—</div>
   </div>
 </div>
 
+<!-- Desktop: table -->
 <div class="table-wrap">
-  <table id="payment-table">
+  <table>
     <thead>
       <tr>
-        <th>#ID</th>
         <th>Thời gian</th>
         <th>NH nhận</th>
         <th>NH chuyển</th>
@@ -252,30 +322,32 @@
       </tr>
     </thead>
     <tbody id="payment-body">
-      <tr>
-        <td colspan="8" class="empty">
-          <div class="icon">💳</div>
-          <div>Chưa có giao dịch nào</div>
-        </td>
-      </tr>
+      <tr><td colspan="8"><div class="empty-state"><div class="icon">💳</div><div>Chưa có giao dịch nào</div></div></td></tr>
     </tbody>
   </table>
+</div>
+
+<!-- Mobile: cards -->
+<div class="card-list" id="card-list">
+  <div class="empty-state"><div class="icon">💳</div><div>Chưa có giao dịch nào</div></div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   let lastTotal = 0;
 
-  function fmt(n) {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
-  }
+  const fmt = n => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(n);
 
   function fmtDate(s) {
     if (!s) return '—';
-    try {
-      return new Date(s).toLocaleString('vi-VN');
-    } catch { return s; }
+    try { return new Date(s).toLocaleString('vi-VN'); } catch { return s; }
   }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function trunc(s, n) { return s.length > n ? s.slice(0,n)+'…' : s; }
 
   async function loadPayments() {
     try {
@@ -283,71 +355,96 @@
       if (!res.ok) throw new Error(res.statusText);
       const { payments, total } = await res.json();
 
-      document.getElementById('status-badge').textContent = 'Connected';
-      document.getElementById('status-badge').className = 'badge';
-
+      setBadge(true);
       document.getElementById('stat-total').textContent = total;
 
-      const incoming = payments.filter(p => p.transferType === 'in');
-      const totalAmount = incoming.reduce((s, p) => s + p.transferAmount, 0);
-      document.getElementById('stat-amount').textContent = fmt(totalAmount);
+      const totalIn = payments.filter(p=>p.transferType==='in').reduce((s,p)=>s+p.transferAmount,0);
+      document.getElementById('stat-amount').textContent = fmt(totalIn);
 
       if (payments.length > 0) {
         const p = payments[0];
         document.getElementById('stat-latest').textContent =
-          fmt(p.transferAmount) + ' — ' + (p.transactionDate || fmtDate(p.receivedAt));
+          fmt(p.transferAmount) + '\n' + (p.transactionDate || fmtDate(p.receivedAt));
       }
 
-      renderTable(payments, total > lastTotal);
+      const isNew = total > lastTotal;
+      renderTable(payments, isNew);
+      renderCards(payments, isNew);
       lastTotal = total;
-
-    } catch (e) {
-      document.getElementById('status-badge').textContent = 'Error';
-      document.getElementById('status-badge').className = 'badge error';
-      console.error(e);
+    } catch {
+      setBadge(false);
     }
+  }
+
+  function setBadge(ok) {
+    const b = document.getElementById('status-badge');
+    b.textContent = ok ? '● Live' : '● Offline';
+    b.className   = ok ? 'badge' : 'badge error';
   }
 
   function renderTable(payments, hasNew) {
     const tbody = document.getElementById('payment-body');
-
-    if (payments.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="empty"><div class="icon">💳</div><div>Chưa có giao dịch nào</div></td></tr>`;
+    if (!payments.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">💳</div><div>Chưa có giao dịch nào</div></div></td></tr>`;
       return;
     }
-
     tbody.innerHTML = payments.map((p, i) => {
       const parsed = p.parsed || {};
-      return `
-      <tr class="${hasNew && i === 0 ? 'new-row' : ''}">
-        <td style="color:#64748b;">${p.id || '—'}</td>
+      return `<tr class="${hasNew && i===0 ? 'new-row' : ''}">
         <td class="date-cell">${p.transactionDate || fmtDate(p.receivedAt)}</td>
-        <td><span class="badge-bank">${p.gateway || '—'}</span></td>
-        <td><span class="badge-bank" style="background:#7c3aed;">${parsed.bankName || '—'}</span></td>
-        <td style="font-family:monospace;font-size:12px;">${parsed.fromAccount || '—'}</td>
-        <td style="font-size:13px;">${escHtml(parsed.fromName || '—')}</td>
-        <td class="amount ${p.transferType === 'out' ? 'out' : ''}">${fmt(p.transferAmount)}</td>
-        <td>${p.transferType === 'in'
+        <td><span class="badge-bank">${esc(p.gateway||'—')}</span></td>
+        <td><span class="badge-bank" style="background:#7c3aed;">${esc(parsed.bankName||'—')}</span></td>
+        <td style="font-family:monospace;font-size:12px;">${esc(parsed.fromAccount||'—')}</td>
+        <td style="font-size:13px;">${esc(parsed.fromName||'—')}</td>
+        <td class="amount ${p.transferType==='out'?'out':''}">${fmt(p.transferAmount)}</td>
+        <td>${p.transferType==='in'
           ? '<span style="color:#10b981;font-weight:700;">↓ Vào</span>'
-          : '<span style="color:#f87171;font-weight:700;">↑ Ra</span>'
-        }</td>
-        <td class="content-cell" title="${escHtml(p.content || '')}">${escHtml(parsed.description || truncate(p.content || '—', 60))}</td>
-      </tr>
-    `}).join('');
+          : '<span style="color:#f87171;font-weight:700;">↑ Ra</span>'}</td>
+        <td class="content-cell" title="${esc(p.content||'')}">${esc(trunc(parsed.description||p.content||'—',60))}</td>
+      </tr>`;
+    }).join('');
   }
 
-  function truncate(s, n) {
-    return s.length > n ? s.slice(0, n) + '…' : s;
-  }
-
-  function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function renderCards(payments, hasNew) {
+    const list = document.getElementById('card-list');
+    if (!payments.length) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">💳</div><div>Chưa có giao dịch nào</div></div>`;
+      return;
+    }
+    list.innerHTML = payments.map((p, i) => {
+      const parsed  = p.parsed || {};
+      const isIn    = p.transferType === 'in';
+      return `<div class="pay-card ${hasNew && i===0 ? 'new-card' : ''}">
+        <div class="pay-card-top">
+          <div class="pay-card-amount ${isIn?'':'out'}">${fmt(p.transferAmount)}</div>
+          <span class="pay-card-type ${isIn?'type-in':'type-out'}">${isIn?'↓ Tiền vào':'↑ Tiền ra'}</span>
+        </div>
+        ${parsed.bankName ? `<div class="pay-card-row">
+          <span class="key">Từ</span>
+          <span class="val"><span class="badge-bank" style="background:#7c3aed;">${esc(parsed.bankName)}</span></span>
+        </div>` : ''}
+        ${parsed.fromAccount ? `<div class="pay-card-row">
+          <span class="key">TK</span>
+          <span class="val" style="font-family:monospace;">${esc(parsed.fromAccount)}</span>
+        </div>` : ''}
+        ${parsed.fromName ? `<div class="pay-card-row">
+          <span class="key">Tên</span>
+          <span class="val">${esc(parsed.fromName)}</span>
+        </div>` : ''}
+        <div class="pay-card-row">
+          <span class="key">NH nhận</span>
+          <span class="val"><span class="badge-bank">${esc(p.gateway||'—')}</span></span>
+        </div>
+        <div class="pay-card-desc">${esc(parsed.description||p.content||'—')}</div>
+        <div class="pay-card-time">${p.transactionDate || fmtDate(p.receivedAt)}</div>
+      </div>`;
+    }).join('');
   }
 
   async function clearPayments() {
-    const password = prompt('Nhập mật khẩu để xóa toàn bộ dữ liệu:');
-    if (password === null) return; // bấm Cancel
-    if (!password.trim()) { alert('Vui lòng nhập mật khẩu'); return; }
+    const password = prompt('Nhap mat khau de xoa toan bo du lieu:');
+    if (password === null) return;
+    if (!password.trim()) { alert('Vui long nhap mat khau'); return; }
 
     const res = await fetch('/api/payments', {
       method: 'DELETE',
@@ -356,33 +453,19 @@
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.message || 'Sai mật khẩu');
+      const err = await res.json().catch(()=>({}));
+      alert(err.message || 'Sai mat khau');
       return;
     }
-
     lastTotal = 0;
     await loadPayments();
   }
 
-  // ── Socket.IO realtime ──────────────────────────────────────
   const socket = io();
+  socket.on('connect',    () => setBadge(true));
+  socket.on('disconnect', () => setBadge(false));
+  socket.on('new_payment', () => loadPayments());
 
-  socket.on('connect', () => {
-    document.getElementById('status-badge').textContent = 'Connected';
-    document.getElementById('status-badge').className = 'badge';
-  });
-
-  socket.on('disconnect', () => {
-    document.getElementById('status-badge').textContent = 'Disconnected';
-    document.getElementById('status-badge').className = 'badge error';
-  });
-
-  socket.on('new_payment', () => {
-    loadPayments();
-  });
-
-  // Load lần đầu khi mở trang
   loadPayments();
 </script>
 </body>
