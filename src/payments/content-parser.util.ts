@@ -121,42 +121,64 @@ function resolveBankName(prefix: string): string {
   return prefix; // fallback: trả về mã gốc
 }
 
-/**
- * Bóc tách nội dung chuyển khoản định dạng SePay/MBVCB:
- * MBVCB.txId.ref.description.CT tu {fromAcc} {fromName} toi {toAcc} {toName} tai {bank}
- */
+// SĐT Việt Nam: 10 số bắt đầu 03x|05x|07x|08x|09x
+const VN_PHONE_RE = /^(0[3-9]\d{8})$/;
+
 export function parseTransferContent(content: string): ParsedContent | null {
   if (!content) return null;
 
-  // Tách phần đầu: PREFIX.txId.ref.description
-  const dotParts = content.split('.');
-  const bankPrefix = dotParts[0]?.toUpperCase() ?? '';
-  const bankName = resolveBankName(bankPrefix);
+  // ── Format 1: dot-separated bank transfer ────────────────────
+  // MBVCB.txId.ref.description.CT tu {fromAcc} {fromName} toi {toAcc} {toName} tai {bank}
+  if (content.includes('.')) {
+    const dotParts = content.split('.');
+    const bankPrefix = dotParts[0]?.toUpperCase() ?? '';
+    const bankName = resolveBankName(bankPrefix);
+    const description = dotParts[3] ?? '';
+    const transfer = dotParts.slice(4).join('.').trim();
 
-  // Lấy description (phần thứ 4, index 3)
-  const description = dotParts[3] ?? '';
+    const match = transfer.match(
+      /CT\s+tu\s+(\S+)\s+(.+?)\s+toi\s+(\S+)\s+(.+?)\s+tai\s+\S+/i,
+    );
 
-  // Tìm phần "CT tu ... toi ... tai ..."
-  // Ghép lại từ phần thứ 5 (sau 4 dấu chấm đầu)
-  const transfer = dotParts.slice(4).join('.').trim();
-
-  // Pattern: CT tu {account} {name} toi {account} {name} tai {bank}
-  const match = transfer.match(
-    /CT\s+tu\s+(\S+)\s+(.+?)\s+toi\s+(\S+)\s+(.+?)\s+tai\s+\S+/i,
-  );
-
-  if (!match) {
-    // Fallback: trả về những gì parse được
-    return { bankPrefix, bankName, description, fromAccount: '', fromName: '', toAccount: '', toName: '' };
+    return {
+      bankPrefix,
+      bankName,
+      description,
+      fromAccount: match?.[1] ?? '',
+      fromName:    match?.[2] ?? '',
+      toAccount:   match?.[3] ?? '',
+      toName:      match?.[4] ?? '',
+    };
   }
 
+  // ── Format 2: MoMo / ví điện tử ─────────────────────────────
+  // {txId} {phone|account} {description...}
+  // VD: "122998552821 0977496798 TESTCHUYENTIEN"
+  const spaceParts = content.trim().split(/\s+/);
+  if (spaceParts.length >= 2 && /^\d{6,}$/.test(spaceParts[0])) {
+    const maybePhone = spaceParts[1];
+    const isPhone = VN_PHONE_RE.test(maybePhone);
+    const description = spaceParts.slice(2).join(' ');
+
+    return {
+      bankPrefix:  'MOMO',
+      bankName:    isPhone ? 'MoMo' : 'Ví điện tử',
+      description,
+      fromAccount: isPhone ? maybePhone : spaceParts[0],
+      fromName:    '',
+      toAccount:   '',
+      toName:      '',
+    };
+  }
+
+  // ── Fallback ─────────────────────────────────────────────────
   return {
-    bankPrefix,
-    bankName,
-    description,
-    fromAccount: match[1],
-    fromName:    match[2],
-    toAccount:   match[3],
-    toName:      match[4],
+    bankPrefix:  '',
+    bankName:    '',
+    description: content,
+    fromAccount: '',
+    fromName:    '',
+    toAccount:   '',
+    toName:      '',
   };
 }
