@@ -8,8 +8,10 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
+import { ApiKeyGuard } from './api-key.guard';
 
 @Controller()
 export class PaymentsController {
@@ -18,6 +20,7 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('hooks/sepay-payment')
+  @UseGuards(ApiKeyGuard)
   @HttpCode(HttpStatus.CREATED)
   async receiveHook(@Body() body: any) {
     this.logger.log(`Received webhook: ${JSON.stringify(body)}`);
