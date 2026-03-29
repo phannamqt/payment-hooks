@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tạo QR VietQR</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    header h1 { font-size: 18px; font-weight: 700; color: #f8fafc; white-space: nowrap; }
+
+    nav { display: flex; align-items: center; gap: 6px; margin-left: 24px; flex: 1; }
+
+    .nav-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-link:hover { background: #334155; color: #f8fafc; }
+    .nav-link.active { background: #3b82f6; color: #fff; font-weight: 600; }
+
+    .container {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 640px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #f8fafc;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      padding: 10px 12px;
+      color: #f1f5f9;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus { border-color: #3b82f6; }
+
+    input::placeholder { color: #475569; }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 4px;
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* QR result */
+    .qr-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .qr-img-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      width: 100%;
+    }
+
+    .qr-img-box img { max-width: 260px; width: 100%; display: block; }
+
+    .qr-placeholder {
+      color: #475569;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .qr-info {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .qr-info .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #1e293b;
+      font-size: 13px;
+    }
+
+    .qr-info .row:last-child { border-bottom: none; }
+    .qr-info .row .key { color: #64748b; }
+    .qr-info .row .val { color: #f1f5f9; font-weight: 600; text-align: right; max-width: 60%; word-break: break-all; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-sm {
+      flex: 1;
+      padding: 9px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn-sm:hover { opacity: 0.85; }
+    .btn-outline { background: #334155; color: #e2e8f0; }
+    .btn-green   { background: #10b981; color: #fff; }
+
+    .error-msg {
+      background: #450a0a;
+      border: 1px solid #991b1b;
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    select option { background: #1e293b; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Payment Hook</h1>
+  <nav>
+    <a href="/" class="nav-link">Dashboard</a>
+    <a href="/qr.html" class="nav-link active">Tạo QR</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- Form -->
+  <div class="card">
+    <h2>Thông tin chuyển khoản</h2>
+
+    <div class="field">
+      <label>Ngân hàng *</label>
+      <select id="bankBin">
+        <option value="">-- Chọn ngân hàng --</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Số tài khoản *</label>
+      <input id="accountNumber" type="text" placeholder="VD: 5650027583" />
+    </div>
+
+    <div class="field">
+      <label>Tên chủ tài khoản *</label>
+      <input id="accountName" type="text" placeholder="VD: PHAN NAM (không dấu, max 25 ký tự)" />
+    </div>
+
+    <div class="field">
+      <label>Số tiền (VND)</label>
+      <input id="amount" type="number" min="0" placeholder="Để trống = QR tĩnh" />
+    </div>
+
+    <div class="field">
+      <label>Nội dung chuyển tiền</label>
+      <input id="description" type="text" maxlength="25" placeholder="Max 25 ký tự" />
+    </div>
+
+    <button class="btn" id="btnGenerate" onclick="generate()">Tạo QR Code</button>
+    <button class="btn" id="btnClear" onclick="clearSaved()"
+      style="background:#334155;margin-top:8px;">Xóa thông tin đã lưu</button>
+    <div id="error-msg" style="display:none;" class="error-msg"></div>
+  </div>
+
+  <!-- QR Result -->
+  <div class="card">
+    <h2>QR Code</h2>
+
+    <div class="qr-wrap">
+      <div class="qr-img-box" id="qr-box">
+        <div class="qr-placeholder">
+          Điền thông tin bên trái<br/>và nhấn <strong>Tạo QR Code</strong>
+        </div>
+      </div>
+
+      <div class="qr-info" id="qr-info" style="display:none;">
+        <div class="row"><span class="key">Ngân hàng</span><span class="val" id="info-bank">—</span></div>
+        <div class="row"><span class="key">Số tài khoản</span><span class="val" id="info-acc">—</span></div>
+        <div class="row"><span class="key">Tên</span><span class="val" id="info-name">—</span></div>
+        <div class="row"><span class="key">Số tiền</span><span class="val" id="info-amount">—</span></div>
+        <div class="row"><span class="key">Nội dung</span><span class="val" id="info-desc">—</span></div>
+      </div>
+
+      <div class="actions" id="qr-actions" style="display:none;">
+        <button class="btn-sm btn-outline" onclick="downloadQR()">Tải PNG</button>
+        <button class="btn-sm btn-green"   onclick="copyQRString()">Copy QR String</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const BANK_LABELS = {
+    BIDV:'BIDV', VCB:'Vietcombank', CTG:'VietinBank', VBA:'Agribank',
+    MBB:'MB Bank', TCB:'Techcombank', ACB:'ACB', STB:'Sacombank',
+    VPB:'VPBank', TPB:'TPBank', VIB:'VIB', HDB:'HDBank', SHB:'SHB',
+    MSB:'MSB', LPB:'LPBank', OCB:'OCB', ABB:'ABBank', SEAB:'SeABank',
+    EIB:'Eximbank', NCB:'NCB', SCB:'SCB', BAB:'BacABank', KLB:'KienlongBank',
+    NAB:'Nam A Bank', PVB:'PVcomBank', PGB:'PGBank', VAB:'VietABank',
+    BVB:'BaoViet Bank', GPB:'GPBank', CBB:'CBBank', OJB:'OceanBank',
+    IVB:'IndovinaBank', VIETBANK:'VietBank', CAKE:'Cake by VPBank',
+    UBANK:'Ubank by VPBank',
+  };
+
+  let currentDataUrl = '';
+  let currentQrString = '';
+
+  const STORAGE_KEY = 'vietqr_saved';
+
+  function loadSaved() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      if (saved.bankBin)       document.getElementById('bankBin').value       = saved.bankBin;
+      if (saved.accountNumber) document.getElementById('accountNumber').value = saved.accountNumber;
+      if (saved.accountName)   document.getElementById('accountName').value   = saved.accountName;
+    } catch {}
+  }
+
+  function saveToBrowser(bankBin, accountNumber, accountName) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ bankBin, accountNumber, accountName }));
+  }
+
+  function clearSaved() {
+    localStorage.removeItem(STORAGE_KEY);
+    document.getElementById('bankBin').value       = '';
+    document.getElementById('accountNumber').value = '';
+    document.getElementById('accountName').value   = '';
+    document.getElementById('amount').value        = '';
+    document.getElementById('description').value   = '';
+    document.getElementById('qr-box').innerHTML    = '<div class="qr-placeholder">Điền thông tin bên trái<br/>và nhấn <strong>Tạo QR Code</strong></div>';
+    document.getElementById('qr-info').style.display    = 'none';
+    document.getElementById('qr-actions').style.display = 'none';
+    hideError();
+  }
+
+  // Populate bank dropdown
+  const sel = document.getElementById('bankBin');
+  Object.entries(BANK_LABELS).forEach(([code, name]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${name} (${code})`;
+    sel.appendChild(opt);
+  });
+
+  // Khôi phục dữ liệu đã lưu
+  loadSaved();
+
+  function fmt(n) {
+    return new Intl.NumberFormat('vi-VN', { style:'currency', currency:'VND' }).format(n);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  async function generate() {
+    hideError();
+    const bankBin       = document.getElementById('bankBin').value.trim();
+    const accountNumber = document.getElementById('accountNumber').value.trim();
+    const accountName   = document.getElementById('accountName').value.trim();
+    const amount        = document.getElementById('amount').value.trim();
+    const description   = document.getElementById('description').value.trim();
+
+    if (!bankBin)       return showError('Vui lòng chọn ngân hàng');
+    if (!accountNumber) return showError('Vui lòng nhập số tài khoản');
+    if (!accountName)   return showError('Vui lòng nhập tên chủ tài khoản');
+
+    const btn = document.getElementById('btnGenerate');
+    btn.disabled = true;
+    btn.textContent = 'Đang tạo...';
+
+    try {
+      const params = new URLSearchParams({ bankBin, accountNumber, accountName });
+      if (amount)      params.set('amount', amount);
+      if (description) params.set('description', description);
+
+      const res = await fetch('/api/qr/generate?' + params);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || res.statusText);
+      }
+
+      const { qrString, dataUrl } = await res.json();
+      currentDataUrl  = dataUrl;
+      currentQrString = qrString;
+
+      saveToBrowser(bankBin, accountNumber, accountName);
+
+      // Hiển thị QR
+      document.getElementById('qr-box').innerHTML =
+        `<img src="${dataUrl}" alt="VietQR" />`;
+
+      // Info
+      document.getElementById('info-bank').textContent   = BANK_LABELS[bankBin] || bankBin;
+      document.getElementById('info-acc').textContent    = accountNumber;
+      document.getElementById('info-name').textContent   = accountName;
+      document.getElementById('info-amount').textContent = amount ? fmt(Number(amount)) : 'Không giới hạn';
+      document.getElementById('info-desc').textContent   = description || '—';
+
+      document.getElementById('qr-info').style.display    = '';
+      document.getElementById('qr-actions').style.display = '';
+
+    } catch (e) {
+      showError(e.message || 'Có lỗi xảy ra');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Tạo QR Code';
+    }
+  }
+
+  function downloadQR() {
+    if (!currentDataUrl) return;
+    const a = document.createElement('a');
+    a.href = currentDataUrl;
+    a.download = `vietqr-${Date.now()}.png`;
+    a.click();
+  }
+
+  async function copyQRString() {
+    if (!currentQrString) return;
+    await navigator.clipboard.writeText(currentQrString);
+    const btn = event.target;
+    btn.textContent = 'Đã copy!';
+    setTimeout(() => btn.textContent = 'Copy QR String', 1500);
+  }
+
+  // Enter để tạo QR
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') generate();
+  });
+</script>
+</body>
+</html>
