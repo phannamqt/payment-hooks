@@ -1,6 +1,7 @@
 import { RedisService } from './redis.service';
 import { ParsedContent } from './content-parser.util';
 import { PaymentsGateway } from './payments.gateway';
+import { NotificationService } from './notification.service';
 export interface Payment {
     gateway: string;
     transactionDate: string;
@@ -20,8 +21,9 @@ export interface Payment {
 export declare class PaymentsService {
     private readonly redisService;
     private readonly gateway;
+    private readonly notification;
     private readonly logger;
-    constructor(redisService: RedisService, gateway: PaymentsGateway);
+    constructor(redisService: RedisService, gateway: PaymentsGateway, notification: NotificationService);
     savePayment(data: any): Promise<Payment>;
     getPayments(limit?: number, offset?: number): Promise<{
         payments: Payment[];

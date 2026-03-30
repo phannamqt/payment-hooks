@@ -114,6 +114,20 @@ function parseTransferContent(content) {
             toName: match?.[4] ?? '',
         };
     }
+    if (/^ZP[A-Z0-9]+/i.test(content)) {
+        const commaIdx = content.indexOf(',');
+        const txId = commaIdx > -1 ? content.slice(0, commaIdx).trim() : content.trim();
+        const description = commaIdx > -1 ? content.slice(commaIdx + 1).trim() : '';
+        return {
+            bankPrefix: 'ZALOPAY',
+            bankName: 'ZaloPay',
+            description,
+            fromAccount: txId,
+            fromName: '',
+            toAccount: '',
+            toName: '',
+        };
+    }
     const spaceParts = content.trim().split(/\s+/);
     if (spaceParts.length >= 2 && /^\d{6,}$/.test(spaceParts[0])) {
         const maybePhone = spaceParts[1];
@@ -121,7 +135,7 @@ function parseTransferContent(content) {
         const description = spaceParts.slice(2).join(' ');
         return {
             bankPrefix: 'MOMO',
-            bankName: isPhone ? 'MoMo' : 'Ví điện tử',
+            bankName: isPhone ? 'MoMo' : 'Vi dien tu',
             description,
             fromAccount: isPhone ? maybePhone : spaceParts[0],
             fromName: '',

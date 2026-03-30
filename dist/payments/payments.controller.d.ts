@@ -11,7 +11,7 @@ export declare class PaymentsController {
         payments: import("./payments.service").Payment[];
         total: number;
     }>;
-    clearPayments(): Promise<{
+    clearPayments(password: string): Promise<{
         success: boolean;
         message: string;
     }>;

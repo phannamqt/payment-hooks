@@ -15,12 +15,14 @@ const common_1 = require("@nestjs/common");
 const redis_service_1 = require("./redis.service");
 const content_parser_util_1 = require("./content-parser.util");
 const payments_gateway_1 = require("./payments.gateway");
+const notification_service_1 = require("./notification.service");
 const REDIS_KEY = 'payments';
 const MAX_PAYMENTS = 500;
 let PaymentsService = PaymentsService_1 = class PaymentsService {
-    constructor(redisService, gateway) {
+    constructor(redisService, gateway, notification) {
         this.redisService = redisService;
         this.gateway = gateway;
+        this.notification = notification;
         this.logger = new common_1.Logger(PaymentsService_1.name);
     }
     async savePayment(data) {
@@ -48,6 +50,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             `from ${payment.parsed?.bankName || payment.gateway} ` +
             `acc=${payment.parsed?.fromAccount || '?'}`);
         this.gateway.emitNewPayment(payment);
+        this.notification.notifyAll(payment);
         return payment;
     }
     async getPayments(limit = 50, offset = 0) {
@@ -66,6 +69,7 @@ exports.PaymentsService = PaymentsService;
 exports.PaymentsService = PaymentsService = PaymentsService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [redis_service_1.RedisService,
-        payments_gateway_1.PaymentsGateway])
+        payments_gateway_1.PaymentsGateway,
+        notification_service_1.NotificationService])
 ], PaymentsService);
 //# sourceMappingURL=payments.service.js.map

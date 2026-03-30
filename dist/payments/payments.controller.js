@@ -31,7 +31,11 @@ let PaymentsController = PaymentsController_1 = class PaymentsController {
         const result = await this.paymentsService.getPayments(limit ? parseInt(limit) : 50, offset ? parseInt(offset) : 0);
         return result;
     }
-    async clearPayments() {
+    async clearPayments(password) {
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (adminPassword && password !== adminPassword) {
+            throw new common_1.UnauthorizedException('Sai mật khẩu');
+        }
         await this.paymentsService.clearPayments();
         return { success: true, message: 'All payments cleared' };
     }
@@ -57,8 +61,9 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('api/payments'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)('password')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "clearPayments", null);
 exports.PaymentsController = PaymentsController = PaymentsController_1 = __decorate([
