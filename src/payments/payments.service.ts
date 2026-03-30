@@ -64,7 +64,9 @@ export class PaymentsService {
     );
 
     this.gateway.emitNewPayment(payment);
-    this.notification.notifyAll(payment);
+    this.notification.notifyAll(payment).catch(e =>
+      this.logger.error(`Notification error: ${e.message}`),
+    );
     return payment;
   }
 

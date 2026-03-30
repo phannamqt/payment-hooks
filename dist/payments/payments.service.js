@@ -50,7 +50,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             `from ${payment.parsed?.bankName || payment.gateway} ` +
             `acc=${payment.parsed?.fromAccount || '?'}`);
         this.gateway.emitNewPayment(payment);
-        this.notification.notifyAll(payment);
+        this.notification.notifyAll(payment).catch(e => this.logger.error(`Notification error: ${e.message}`));
         return payment;
     }
     async getPayments(limit = 50, offset = 0) {

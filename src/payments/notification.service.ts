@@ -45,19 +45,36 @@ export class NotificationService {
     const parsed = payment.parsed;
     const isIn   = payment.transferType === 'in';
 
+    const senderLine = [
+      parsed?.fromName,
+      parsed?.bankName,
+      parsed?.fromAccount ? `\`${parsed.fromAccount}\`` : null,
+    ].filter(Boolean).join('  •  ');
+
+    const desc = [
+      // ── Số tiền nổi bật ──
+      `# ${this.fmt(payment.transferAmount)}`,
+      ``,
+      // ── Người chuyển ──
+      `**👤 Người chuyển**`,
+      senderLine || '—',
+      ``,
+      // ── Nội dung ──
+      `**📝 Nội dung**`,
+      parsed?.description || payment.content || '—',
+      ``,
+      // ── Divider + thông tin phụ ──
+      `─────────────────────────`,
+      `🏦 **${payment.gateway || '—'}**  •  \`${payment.subAccount || payment.accountNumber || '—'}\`  •  🕐 ${payment.transactionDate || payment.receivedAt}`,
+    ].join('\n');
+
     const body = {
       embeds: [{
-        title:       isIn ? '💰 Tiền vào' : '💸 Tiền ra',
+        title:       isIn ? '💰  TIỀN VÀO' : '💸  TIỀN RA',
+        description: desc,
         color:       isIn ? 0x10b981 : 0xef4444,
-        fields: [
-          { name: 'Số tiền',      value: this.fmt(payment.transferAmount), inline: true },
-          { name: 'NH nhận',      value: payment.gateway || '—',           inline: true },
-          ...(parsed?.bankName    ? [{ name: 'Ngân hàng chuyển', value: parsed.bankName,    inline: true }] : []),
-          ...(parsed?.fromAccount ? [{ name: 'TK chuyển',        value: parsed.fromAccount, inline: true }] : []),
-          ...(parsed?.fromName    ? [{ name: 'Tên người chuyển', value: parsed.fromName,    inline: true }] : []),
-          { name: 'Nội dung', value: parsed?.description || payment.content || '—', inline: false },
-        ],
-        footer: { text: `NAM Pay • ${payment.transactionDate || payment.receivedAt}` },
+        footer:      { text: 'NAM Pay' },
+        timestamp:   new Date(payment.receivedAt).toISOString(),
       }],
     };
 
@@ -67,8 +84,9 @@ export class NotificationService {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(body),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      this.logger.log('Discord notified');
+      const text = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+      this.logger.log('Discord notified OK');
     } catch (e) {
       this.logger.error(`Discord error: ${e.message}`);
     }
