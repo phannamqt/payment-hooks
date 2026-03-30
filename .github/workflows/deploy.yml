@@ -66,14 +66,24 @@ jobs:
 
             cd /opt/payment-hooks
 
-            # --- 1. Tao file .env neu chua co ---
-            if [ ! -f .env ]; then
-              echo "PORT=3000" > .env
-              echo "REDIS_HOST=redis.phannam.com" >> .env
-              echo "REDIS_PORT=6379" >> .env
-              echo "WEBHOOK_API_KEY=${{ secrets.WEBHOOK_API_KEY }}" >> .env
-              echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
-            fi
+            # --- 1. Upsert tung bien vao .env (tao moi neu chua co) ---
+            touch .env
+            upsert_env() {
+              local key=$1 val=$2
+              if grep -q "^${key}=" .env; then
+                sed -i "s|^${key}=.*|${key}=${val}|" .env
+              else
+                echo "${key}=${val}" >> .env
+              fi
+            }
+            upsert_env PORT               3000
+            upsert_env REDIS_HOST         redis.phannam.com
+            upsert_env REDIS_PORT         6379
+            upsert_env WEBHOOK_API_KEY    "${{ secrets.WEBHOOK_API_KEY }}"
+            upsert_env ADMIN_PASSWORD     "${{ secrets.ADMIN_PASSWORD }}"
+            upsert_env DISCORD_WEBHOOK_URL "${{ secrets.DISCORD_WEBHOOK_URL }}"
+            upsert_env VIBER_BOT_TOKEN    "${{ secrets.VIBER_BOT_TOKEN }}"
+            upsert_env VIBER_RECEIVER_ID  "${{ secrets.VIBER_RECEIVER_ID }}"
 
             # --- 2. Pull image moi nhat ---
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
