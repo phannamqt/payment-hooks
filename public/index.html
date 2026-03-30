@@ -359,13 +359,11 @@
       document.getElementById('stat-total').textContent = total;
 
       const totalIn = payments.filter(p=>p.transferType==='in').reduce((s,p)=>s+p.transferAmount,0);
-      document.getElementById('stat-amount').textContent = fmt(totalIn);
+      document.getElementById('stat-amount').textContent = payments.length ? fmt(totalIn) : '—';
 
-      if (payments.length > 0) {
-        const p = payments[0];
-        document.getElementById('stat-latest').textContent =
-          fmt(p.transferAmount) + '\n' + (p.transactionDate || fmtDate(p.receivedAt));
-      }
+      document.getElementById('stat-latest').textContent = payments.length > 0
+        ? fmt(payments[0].transferAmount) + '\n' + (payments[0].transactionDate || fmtDate(payments[0].receivedAt))
+        : '—';
 
       const isNew = total > lastTotal;
       renderTable(payments, isNew);
