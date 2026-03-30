@@ -433,7 +433,12 @@
           <span class="key">NH nhận</span>
           <span class="val"><span class="badge-bank">${esc(p.gateway||'—')}</span></span>
         </div>
-        <div class="pay-card-desc">${esc(parsed.description||p.content||'—')}</div>
+        <div class="pay-card-desc">
+          <span style="color:#64748b;font-size:11px;display:block;margin-bottom:3px;">Nội dung</span>
+          ${esc(parsed.description && p.content && parsed.description !== p.content
+            ? parsed.description + ' · ' + p.content
+            : parsed.description || p.content || '—')}
+        </div>
         <div class="pay-card-time">${p.transactionDate || fmtDate(p.receivedAt)}</div>
       </div>`;
     }).join('');
